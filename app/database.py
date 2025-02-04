@@ -76,7 +76,8 @@ class Database:
 
         Inserting data:
             >>> with Database() as db:
-            ...     db.execute("INSERT INTO Likes (mpid, uemail) VALUES (%s, %s)", (movie_id, user_email), commit=True)
+            ...     db.execute("INSERT INTO Users (email, name, age) VALUES (%s, %s, %s)", 
+            ...                 ("johndoe@example.com", "John Doe", 30), commit=True)
         """
 
         try:

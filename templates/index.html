@@ -29,7 +29,7 @@
                     <select name="movie_id" required>
                         <option value="" disabled selected>Select a Movie</option>
                         {% for movie in movies %}
-                        <option value="{{ movie.id }}">{{ movie[0] }} ({{ movie[1] }})</option>
+                        <option value="{{ movie[0] }}">{{ movie[0] }} ({{ movie[1] }})</option>
                         <!-- Movie ID and Name -->
                         {% endfor %}
                     </select>

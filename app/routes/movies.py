@@ -37,6 +37,11 @@ def like_movie():
 
     # >>>> TODO 2: Write a query to insert a like into the Likes table <<<<
     #              The query should insert `movie_id` and `user_email` into `Likes`.
+    #
+    # >>>> NOTE: Read the Database.execute function documentation to understand:
+    #    - How `execute` handles SQL queries.
+    #    - Why we pass `params` as a tuple (movie_id, user_email).
+    #    - The role of `commit=True` in saving changes.
 
     query = """ """
 
