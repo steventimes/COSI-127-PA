@@ -1,7 +1,7 @@
 from typing import Any, AnyStr, Optional, Tuple
 
 import pymysql as sqldb
-import config
+import app.config as config
 
 
 def get_db_connection() -> sqldb.Connection:
