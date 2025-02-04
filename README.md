@@ -143,7 +143,7 @@ Modify the function inside `movies.py` to allow users to like a movie.
 
 ---
 
-## **5. Troubleshooting & Resetting Database**
+## **4. Troubleshooting & Resetting Database**
 If you encounter issues, use the following commands:
 
 - **Truncate table data** (removes all rows but keeps table structure):
@@ -163,7 +163,7 @@ If you encounter issues, use the following commands:
 
 ---
 
-## **6. Submission Guidelines**
+## **5. Submission Guidelines**
 1. **Complete the missing SQL queries** in `actors.py` and `movies.py`.
 2. **Ensure your application runs without errors** and the database is correctly set up.
 
