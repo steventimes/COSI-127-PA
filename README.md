@@ -52,6 +52,7 @@ The project is structured to **learn SQL** by implementing queries and database 
    ```
 
    Inside MySQL, run the following:
+   > **NOTE**: Below commands must be run in your MySQL shell inside terminal.
    ```sql
    CREATE DATABASE moviedb;
 
@@ -83,7 +84,7 @@ DB_HOST=localhost
 DB_DATABASE=moviedb
 ```
 
-*(Replace `cosi-127b` with the password you used while setting up MariaDB in Step 1.)*
+*(Replace `cosi-127b` with the password, if you used different while setting up MariaDB in Step 1.3 for `imdb` user)*
 
 ---
 
@@ -94,7 +95,11 @@ Use the SQL scripts provided to set up the database.
    ```bash
    mysql -u imdb -p moviedb
    ```
-2. Create required tables as per the provided schema and ER-diagram in project document. Pay attention for required constraints (`CHECK`, `PRIMARY KEY`, `FOREIGN KEY` with `ON DELETE CASCADE`) while creating tables.
+   > **NOTE**: Starting next step, all commands must be run in your MySQL shell inside terminal.
+2. Create required tables as per the provided schema and ER-diagram in project document. Pay attention for required constraints (`CHECK`, `PRIMARY KEY`, `FOREIGN KEY` with `ON DELETE CASCADE`) while creating tables. Don't forget to run the below command before you start creating tables.
+   ```sql
+   USE moviedb; --- This takes you inside moviedb
+   ```
 3. Verify that the tables are created successfully:
    ```sql
    SHOW TABLES;
@@ -109,7 +114,7 @@ Use the SQL scripts provided to set up the database.
 
 ### **Step 5: Running the Flask Application**
 Once your database is set up and populated with sample data, follow these steps to start the Flask application:
-
+> **NOTE**: The following commands must be run in your command prompt (terminal), NOT inside the MySQL shell.
 1. Install required dependencies:
    ```bash
    pip install -r requirements.txt
