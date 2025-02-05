@@ -1,7 +1,7 @@
-# IMDB Database
+# Create Your Own IMDb
 
 ## Overview
-This project is a simple web application similar to IMDB that interacts with a MySQL/MariaDB database. The application features a Flask-based UI that allows users to **view movie and actor details, like movies, and execute SQL queries**.
+This project is a simple web application similar to IMDb that interacts with a MySQL/MariaDB database. The application features a Flask-based UI that allows users to **view movie and actor details, like movies, and execute SQL queries**.
 
 The project is structured to **learn SQL** by implementing queries and database interactions manually.
 
@@ -70,9 +70,9 @@ The project is structured to **learn SQL** by implementing queries and database 
 ### **Step 2: Clone or Download the Project**
 - Clone the repository using:
   ```bash
-  git clone https://github.com/SSD-Brandeis/IMDBDatabase
+  git clone https://github.com/SSD-Brandeis/IMDbDatabase
   ```
-- Or download it manually from [GitHub](https://github.com/SSD-Brandeis/IMDBDatabase) by clicking the green "Code" button → **Download ZIP**.
+- Or download it manually from [GitHub](https://github.com/SSD-Brandeis/IMDbDatabase) by clicking the green "Code" button → **Download ZIP**.
 
 ---
 
