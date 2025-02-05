@@ -22,7 +22,8 @@ The project is structured to **learn SQL** by implementing queries and database 
 
 ### **Step 1: Install and Configure MariaDB**
 1. **Installation**  
-   > **NOTE**: If you already did set-up MariaDB for Written Assignment 2, skip first two points.
+   > **NOTE**: If you have already set up MariaDB for Written Assignment 2, you may skip the first two sections (*Installation* and *Starting the MariaDB Server*).
+
    Choose the appropriate installation method for your operating system:
     - **MacOS (Homebrew)**  
       ```bash
