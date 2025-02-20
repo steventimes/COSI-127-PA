@@ -41,3 +41,34 @@ CREATE TABLE IF NOT EXISTS 'Likes'(
     FOREIGN KEY ('uemail') REFERENCES 'User'('email'),
     FOREIGN KEY ('mpid') REFERENCES 'Motion Pictire'('id')
 );
+CREATE TABLE IF NOT EXISTS 'People'(
+    'id' INT PRIMARY KEY AUTO_INCREMENT,
+    'name' VARCHAR(255),
+    'nationality' VARCHAR(255),
+    'dob' DATE,
+    'gender' ENUM('M', 'F', 'O')
+) CREATE TABLE IF NOT EXISTS 'Role'(
+    'mpid' INT,
+    'pid' INT,
+    'role_name' VARCHAR(255),
+    PRIMARY KEY ('mpid', 'pid', 'role_name'),
+    FOREIGN KEY ('mpid') REFERENCES 'Motion Pictire'('id'),
+    FOREIGN KEY ('pid') REFERENCES 'People'('id')
+);
+CREATE TABLE IF NOT EXISTS 'Award'(
+    'mpid' INT,
+    'pid' INT,
+    'award_name' VARCHAR(255),
+    'award_year' YEAR,
+    PRIMARY KEY ('mpid', 'pid', 'award_name', 'award_year'),
+    FOREIGN KEY ('mpid') REFERENCES 'Motion Pictire'('id'),
+    FOREIGN KEY ('pid') REFERENCES 'People'('id')
+);
+CREATE TABLE IF NOT EXISTS 'Location'(
+    'mpid' INT,
+    'zip' INT,
+    'city' VARCHAR(255),
+    'country' VARCHAR(255),
+    PRIMARY KEY ('mpid', 'zip'),
+    FOREIGN KEY ('mpid') REFERENCES 'Motion Pictire'('id')
+)
