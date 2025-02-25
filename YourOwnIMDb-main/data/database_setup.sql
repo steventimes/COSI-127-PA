@@ -15,18 +15,18 @@ CREATE TABLE IF NOT EXISTS Genre (
     mpid INT,
     genre_name VARCHAR(255),
     PRIMARY KEY (mpid, genre_name),
-    FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE CASCADE
+    FOREIGN KEY (mpid) REFERENCES MotionPicture(id)
 );
 CREATE TABLE IF NOT EXISTS Movie(
     mpid INT PRIMARY KEY,
     boxoffice_collection FLOAT,
-    FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE CASCADE,
+    FOREIGN KEY (mpid) REFERENCES MotionPicture(id),
     CONSTRAINT boxoffice_collection_check CHECK (boxoffice_collection >= 0)
 );
 CREATE TABLE IF NOT EXISTS Series(
     mpid INT PRIMARY KEY,
     season_count TINYINT,
-    FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE CASCADE,
+    FOREIGN KEY (mpid) REFERENCES MotionPicture(id),
     CONSTRAINT season_count_check CHECK (season_count >= 1)
 );
 CREATE TABLE IF NOT EXISTS Users(
@@ -38,8 +38,8 @@ CREATE TABLE IF NOT EXISTS Likes(
     uemail VARCHAR(255),
     mpid INT,
     PRIMARY KEY (uemail, mpid),
-    FOREIGN KEY (uemail) REFERENCES Users(email) ON DELETE CASCADE,
-    FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE CASCADE
+    FOREIGN KEY (uemail) REFERENCES Users(email),
+    FOREIGN KEY (mpid) REFERENCES MotionPicture(id)
 );
 CREATE TABLE IF NOT EXISTS People(
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS Role(
     pid INT,
     role_name VARCHAR(255),
     PRIMARY KEY (mpid, pid, role_name),
-    FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE CASCADE,
-    FOREIGN KEY (pid) REFERENCES People(id) ON DELETE CASCADE
+    FOREIGN KEY (mpid) REFERENCES MotionPicture(id),
+    FOREIGN KEY (pid) REFERENCES People(id)
 );
 CREATE TABLE IF NOT EXISTS Award(
     mpid INT,
@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS Award(
     award_name VARCHAR(255),
     award_year YEAR,
     PRIMARY KEY (mpid, pid, award_name, award_year),
-    FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE CASCADE,
-    FOREIGN KEY (pid) REFERENCES People(id) ON DELETE CASCADE
+    FOREIGN KEY (mpid) REFERENCES MotionPicture(id),
+    FOREIGN KEY (pid) REFERENCES People(id)
 );
 CREATE TABLE IF NOT EXISTS Location(
     mpid INT,
