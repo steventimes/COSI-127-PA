@@ -55,8 +55,7 @@ CREATE TABLE IF NOT EXISTS Role(
     role_name VARCHAR(255),
     PRIMARY KEY (mpid, pid, role_name),
     FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE CASCADE,
-    FOREIGN KEY (pid) REFERENCES People(id) ON DELETE
-    SET NULL
+    FOREIGN KEY (pid) REFERENCES People(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS Award(
     mpid INT,
@@ -64,10 +63,8 @@ CREATE TABLE IF NOT EXISTS Award(
     award_name VARCHAR(255),
     award_year YEAR,
     PRIMARY KEY (mpid, pid, award_name, award_year),
-    FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE
-    SET NULL,
-        FOREIGN KEY (pid) REFERENCES People(id) ON DELETE
-    SET NULL
+    FOREIGN KEY (mpid) REFERENCES MotionPicture(id) ON DELETE CASCADE,
+    FOREIGN KEY (pid) REFERENCES People(id) ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS Location(
     mpid INT,
