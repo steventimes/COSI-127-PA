@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS People(
     name VARCHAR(255),
     nationality VARCHAR(255),
     dob DATE,
-    gender ENUM('M', 'F', 'O')
+    gender CHAR(1),
+    CONSTRAINT gender_check CHECK (gender IN ('M', 'F', 'O'))
 );
 CREATE TABLE IF NOT EXISTS Role(
     mpid INT,
