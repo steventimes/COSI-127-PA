@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS MotionPicture (
     name VARCHAR(255),
     rating FLOAT,
     production VARCHAR(255),
-    budget INT,
+    budget BIGINT,
     CONSTRAINT rating_check CHECK (
         rating > 0
         AND rating <= 10
