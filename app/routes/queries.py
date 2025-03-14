@@ -10,7 +10,7 @@ def list_tables():
 
     # >>>> TODO 1: Write a query to list all the tables in the database. <<<<
 
-    query = """ """
+    query = """SHOW TABLES;"""
 
     with Database() as db:
         tables = db.execute(query)
@@ -25,7 +25,7 @@ def search_movie():
     # >>>> TODO 2: Search Motion Picture by Motion picture name. <<<<
     #              List the movie `name`, `rating`, `production` and `budget`.
 
-    query = """ """
+    query = """SELECT name, rating, production, budget FROM MotionPicture WHERE name = %s;"""
     
     with Database() as db:
         movies = db.execute(query, (f"%{movie_name}%",))
@@ -40,7 +40,7 @@ def search_liked_movies():
     # >>>> TODO 3: Find the movies that have been liked by a specific user’s email. <<<<
     #              List the movie `name`, `rating`, `production` and `budget`.
 
-    query = """ """
+    query = """SELECT M.name, M.rating, M.production, M.budget FROM Likes L, MotionPicture M WHERE L.user_email = %s AND L.movie_id = M.id;"""
 
     with Database() as db:
         movies = db.execute(query, (user_email,))
@@ -55,7 +55,7 @@ def search_by_country():
     # >>>> TODO 4: Search motion pictures by their shooting location country. <<<<
     #              List only the motion picture names without any duplicates.
 
-    query = """ """
+    query = """SELECT DISTINCT M.name FROM MotionPicture M, Location L WHERE M.mpid = L.mpid AND L.country = %s;"""
 
     with Database() as db:
         movies = db.execute(query, (country,))
