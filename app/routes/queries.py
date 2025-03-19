@@ -70,7 +70,9 @@ def search_directors_by_zip():
     # >>>> TODO 5: List all directors who have directed TV series shot in a specific zip code. <<<<
     #              List the director name and TV series name only without duplicates.
 
-    query = """ """
+    query = """WITH Directors AS (SELECT * FROM Role WHERE role_name = 'Director') 
+            SELECT P.name, M.name FROM Directors D, People P, MotionPicture M, Location L  
+            WHERE D.mpid = M.id AND D.pid = P.id AND L.mpid = M.id AND L.zip_code = %s;"""
 
     with Database() as db:
         results = db.execute(query, (zip_code,))
@@ -85,7 +87,10 @@ def search_awards():
     # >>>> TODO 6: Find the people who have received more than “k” awards for a single motion picture in the same year. <<<<
     #              List the person `name`, `motion picture name`, `award year` and `award count`.
 
-    query = """ """
+    query = """SELECT P.name, M.name, A.award_year, COUNT(*) AS award_count FROM People P, MotionPicture M, Award A 
+                WHERE P.id = A.pid AND M.id = A.mpid
+                GROUP BY P.id, M.id, A.award_year
+                HAVING COUNT(*) > %s;"""
 
     with Database() as db:
         results = db.execute(query, (k,))
@@ -104,7 +109,30 @@ def find_youngest_oldest_actors():
     #              The age should be computed from the person’s date of birth to the award winning year only. 
     #              In case of a tie, list all of them.
 
-    query = """ """
+    query = """WITH Actors AS (
+                SELECT 
+                    P.id AS actor_id,
+                    P.name AS actor_name,
+                    P.dob,
+                    A.award_year,
+                    (A.award_year - YEAR(P.dob)) AS age_at_award
+                FROM People P
+                JOIN Role R ON P.id = R.pid
+                JOIN Award A ON P.id = A.pid AND R.mpid = A.mpid
+                WHERE R.role_name = 'Actor'
+            ),
+            Age AS (
+                SELECT 
+                    MIN(age_at_award) AS youngest_age,
+                    MAX(age_at_award) AS oldest_age
+                FROM ActorAwards
+            )
+            SELECT A.actor_name, A.age_at_award 
+            FROM Actors AT
+            JOIN Ages AG 
+            ON AT.age_at_award = AG.youngest_age OR AT.age_at_award = AG.oldest_age
+            ORDER BY AT.age_at_award;
+            """
 
     with Database() as db:
         actors = db.execute(query)
@@ -138,7 +166,13 @@ def search_producers():
     # >>>> TODO 8: Find the American [USA] Producers who had a box office collection of more than or equal to “X” with a budget less than or equal to “Y”. <<<< 
     #              List the producer `name`, `movie name`, `box office collection` and `budget`.
 
-    query = """ """
+    query = """With Producers AS (
+                SELECT P.name, R.mpid 
+                FROM People P, Role R
+                WHERE P.id = R.pid AND R.role_name = 'Producer' AND P.nationality = 'USA')
+                SELECT P.name, MP.name, M.box_office_collection, MP.budget
+                FROM Producers P, MotionPicture MP, Movie M
+                WHERE P.mpid = MP.id AND MP.id = M.mpid AND M.box_office_collection >= %s AND MP.budget <= %s;"""
 
     with Database() as db:
         results = db.execute(query, (box_office_min, budget_max))
@@ -155,7 +189,15 @@ def search_multiple_roles():
     # >>>> TODO 9: List the people who have played multiple roles in a motion picture where the rating is more than “X”. <<<<
     #              List the person’s `name`, `motion picture name` and `count of number of roles` for that particular motion picture.
 
-    query = """ """
+    query = """WITH MPs AS (
+                SELECT id, name
+                FROM MotionPicture
+                WHERE rating > %s)
+                SELECT P.name, MP.name, COUNT(*) AS role_count
+                FROM People P, Role R, MPs MP
+                WHERE P.id = R.pid AND R.mpid = MP.id
+                GROUP BY P.id, MP.id
+                HAVING COUNT(*) > 1;"""
 
     with Database() as db:
         results = db.execute(query, (rating_threshold,))
@@ -170,7 +212,7 @@ def top_thriller_movies_boston():
     #               This means that the movie cannot have any other shooting location. 
     #               List the `movie names` and their `ratings`.
 
-    query = """ """
+    query = """SELECT name, rating FROM MotionPicture WHERE genre = 'Thriller' AND id IN (SELECT mpid FROM Location WHERE city = 'Boston') ORDER BY rating DESC LIMIT 2;"""
 
     with Database() as db:
         results = db.execute(query)
@@ -190,7 +232,15 @@ def search_movies_by_likes():
     # >>>> TODO 11: Find all the movies with more than “X” likes by users of age less than “Y”. <<<<
     #               List the movie names and the number of likes by those age-group users.
 
-    query = """ """
+    query = """WITH UserAge AS (
+                SELECT email, age
+                FROM Users
+                WHERE age < %s)
+                SELECT M.name, COUNT(*) AS likes_count
+                FROM Likes L, UserAge U, MotionPicture M
+                WHERE L.uemail = U.email AND L.mpid = M.id
+                GROUP BY M.id
+                HAVING COUNT(*) > %s;"""
 
     with Database() as db:
         results = db.execute(query, (max_age, min_likes))
@@ -206,7 +256,12 @@ def actors_marvel_warner():
     # >>>> TODO 12: Find the actors who have played a role in both “Marvel” and “Warner Bros” productions. <<<<
     #               List the `actor names` and the corresponding `motion picture names`.
 
-    query = """ """
+    query = """WITH Actors AS (
+                SELECT * FROM Role WHERE role_name = 'Actor'),
+                WITH FilterMP AS (SELECT id, name FROM MotionPicture WHERE production = 'Warner Bros' OR production = 'Marvel')
+                SELECT P.name, M.name
+                FROM Actors A, People P, FilterMP F
+                WHERE A.pid = P.id AND A.mpid = F.id;"""
 
     with Database() as db:
         results = db.execute(query)
@@ -222,7 +277,7 @@ def movies_higher_than_comedy_avg():
     # >>>> TODO 13: Find the motion pictures that have a higher rating than the average rating of all comedy (genre) motion pictures. <<<<
     #               Show the names and ratings in descending order of ratings.
 
-    query = """ """
+    query = """SELECT name, rating FROM MotionPicture WHERE rating > (SELECT AVG(rating) FROM MotionPicture WHERE genre = 'Comedy') ORDER BY rating DESC;"""
 
     with Database() as db:
         results = db.execute(query)
@@ -238,7 +293,13 @@ def top_5_movies_people_roles():
     # >>>> TODO 14: Find the top 5 movies with the highest number of people playing a role in that movie. <<<<
     #               Show the `movie name`, `people count` and `role count` for the movies.
 
-    query = """ """
+    query = """SELECT MP.name AS movie_name, COUNT(DISTINCT R.pid) AS people_count, COUNT(R.role_name) AS role_count
+                FROM Movie M, MotionPicture MP, Role R
+                WHERE M.mpid = MP.id AND M.mpid = R.mpid
+                GROUP BY MP.name
+                ORDER BY people_count DESC, role_count DESC
+                LIMIT 5;
+                """
 
     with Database() as db:
         results = db.execute(query)
@@ -254,7 +315,9 @@ def actors_with_common_birthday():
     # >>>> TODO 15: Find actors who share the same birthday. <<<<
     #               List the actor names (actor 1, actor 2) and their common birthday.
 
-    query = """ """
+    query = """SELECT A1.name AS actor1_name, A2.name AS actor2_name, A1.dob
+                FROM People A1, People A2, Role R
+                WHERE A1.id in (SELECT pid FROM Role WHERE role_name = 'Actor') AND A2.id in (SELECT pid FROM Role WHERE role_name = 'Actor') AND A1.id < A2.id AND A1.dob = A2.dob;"""
 
     with Database() as db:
         results = db.execute(query)
