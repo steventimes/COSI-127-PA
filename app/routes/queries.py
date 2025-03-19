@@ -25,7 +25,7 @@ def search_movie():
     # >>>> TODO 2: Search Motion Picture by Motion picture name. <<<<
     #              List the movie `name`, `rating`, `production` and `budget`.
 
-    query = """SELECT name, rating, production, budget FROM MotionPicture WHERE name = %s;"""
+    query = """SELECT name, rating, production, budget FROM MotionPicture WHERE name Like %s;"""
     
     with Database() as db:
         movies = db.execute(query, (f"%{movie_name}%",))
@@ -40,7 +40,7 @@ def search_liked_movies():
     # >>>> TODO 3: Find the movies that have been liked by a specific user’s email. <<<<
     #              List the movie `name`, `rating`, `production` and `budget`.
 
-    query = """SELECT M.name, M.rating, M.production, M.budget FROM Likes L, MotionPicture M WHERE L.user_email = %s AND L.movie_id = M.id;"""
+    query = """SELECT M.name, M.rating, M.production, M.budget FROM Likes L, MotionPicture M WHERE L.uemail Like %s AND L.mpid = M.id;"""
 
     with Database() as db:
         movies = db.execute(query, (user_email,))
@@ -55,7 +55,7 @@ def search_by_country():
     # >>>> TODO 4: Search motion pictures by their shooting location country. <<<<
     #              List only the motion picture names without any duplicates.
 
-    query = """SELECT DISTINCT M.name FROM MotionPicture M, Location L WHERE M.mpid = L.mpid AND L.country = %s;"""
+    query = """SELECT DISTINCT M.name FROM MotionPicture M, Location L WHERE M.id = L.mpid AND L.country Like %s;"""
 
     with Database() as db:
         movies = db.execute(query, (country,))
@@ -72,7 +72,7 @@ def search_directors_by_zip():
 
     query = """WITH Directors AS (SELECT * FROM Role WHERE role_name = 'Director') 
             SELECT P.name, M.name FROM Directors D, People P, MotionPicture M, Location L  
-            WHERE D.mpid = M.id AND D.pid = P.id AND L.mpid = M.id AND L.zip_code = %s;"""
+            WHERE D.mpid = M.id AND D.pid = P.id AND L.mpid = M.id AND L.zip = %s;"""
 
     with Database() as db:
         results = db.execute(query, (zip_code,))
@@ -111,11 +111,11 @@ def find_youngest_oldest_actors():
 
     query = """WITH Actors AS (
                 SELECT 
-                    P.id AS actor_id,
-                    P.name AS actor_name,
+                    P.id,
+                    P.name,
                     P.dob,
                     A.award_year,
-                    (A.award_year - YEAR(P.dob)) AS age_at_award
+                    (A.award_year - YEAR(P.dob)) AS age
                 FROM People P
                 JOIN Role R ON P.id = R.pid
                 JOIN Award A ON P.id = A.pid AND R.mpid = A.mpid
@@ -123,15 +123,15 @@ def find_youngest_oldest_actors():
             ),
             Age AS (
                 SELECT 
-                    MIN(age_at_award) AS youngest_age,
-                    MAX(age_at_award) AS oldest_age
-                FROM ActorAwards
+                    MIN(age) AS youngest_age,
+                    MAX(age) AS oldest_age
+                FROM Actors
             )
-            SELECT A.actor_name, A.age_at_award 
+            SELECT AT.name, AT.age
             FROM Actors AT
-            JOIN Ages AG 
-            ON AT.age_at_award = AG.youngest_age OR AT.age_at_award = AG.oldest_age
-            ORDER BY AT.age_at_award;
+            JOIN Age AG 
+            ON AT.age = AG.youngest_age OR AT.age = AG.oldest_age
+            ORDER BY AT.age;
             """
 
     with Database() as db:
@@ -170,9 +170,9 @@ def search_producers():
                 SELECT P.name, R.mpid 
                 FROM People P, Role R
                 WHERE P.id = R.pid AND R.role_name = 'Producer' AND P.nationality = 'USA')
-                SELECT P.name, MP.name, M.box_office_collection, MP.budget
+                SELECT P.name, MP.name, M.boxoffice_collection, MP.budget
                 FROM Producers P, MotionPicture MP, Movie M
-                WHERE P.mpid = MP.id AND MP.id = M.mpid AND M.box_office_collection >= %s AND MP.budget <= %s;"""
+                WHERE P.mpid = MP.id AND MP.id = M.mpid AND M.boxoffice_collection >= %s AND MP.budget <= %s;"""
 
     with Database() as db:
         results = db.execute(query, (box_office_min, budget_max))
@@ -212,7 +212,7 @@ def top_thriller_movies_boston():
     #               This means that the movie cannot have any other shooting location. 
     #               List the `movie names` and their `ratings`.
 
-    query = """SELECT name, rating FROM MotionPicture WHERE genre = 'Thriller' AND id IN (SELECT mpid FROM Location WHERE city = 'Boston') ORDER BY rating DESC LIMIT 2;"""
+    query = """SELECT M.name, M.rating FROM MotionPicture M, Genre G WHERE G.genre_name = 'Thriller' AND M.id = G.mpid AND id IN (SELECT mpid FROM Location WHERE city = 'Boston') ORDER BY rating DESC LIMIT 2;"""
 
     with Database() as db:
         results = db.execute(query)
@@ -256,12 +256,28 @@ def actors_marvel_warner():
     # >>>> TODO 12: Find the actors who have played a role in both “Marvel” and “Warner Bros” productions. <<<<
     #               List the `actor names` and the corresponding `motion picture names`.
 
-    query = """WITH Actors AS (
-                SELECT * FROM Role WHERE role_name = 'Actor'),
-                WITH FilterMP AS (SELECT id, name FROM MotionPicture WHERE production = 'Warner Bros' OR production = 'Marvel')
-                SELECT P.name, M.name
-                FROM Actors A, People P, FilterMP F
-                WHERE A.pid = P.id AND A.mpid = F.id;"""
+    query = """WITH MarvelActors AS (
+                    SELECT DISTINCT P.id, P.name AS actor_name, MP.name AS movie_name
+                    FROM People P
+                    JOIN Role R ON P.id = R.pid
+                    JOIN MotionPicture MP ON R.mpid = MP.id
+                    WHERE MP.production = 'Marvel'
+                ),
+                WarnerActors AS (
+                    SELECT DISTINCT P.id, P.name AS actor_name, MP.name AS movie_name
+                    FROM People P
+                    JOIN Role R ON P.id = R.pid
+                    JOIN MotionPicture MP ON R.mpid = MP.id
+                    WHERE MP.production = 'Warner Bros'
+                )
+                SELECT M.actor_name, M.movie_name 
+                FROM MarvelActors M
+                WHERE M.id IN (SELECT W.id FROM WarnerActors W)
+                UNION
+                SELECT W.actor_name, W.movie_name 
+                FROM WarnerActors W
+                WHERE W.id IN (SELECT M.id FROM MarvelActors M);
+                """
 
     with Database() as db:
         results = db.execute(query)
@@ -277,7 +293,12 @@ def movies_higher_than_comedy_avg():
     # >>>> TODO 13: Find the motion pictures that have a higher rating than the average rating of all comedy (genre) motion pictures. <<<<
     #               Show the names and ratings in descending order of ratings.
 
-    query = """SELECT name, rating FROM MotionPicture WHERE rating > (SELECT AVG(rating) FROM MotionPicture WHERE genre = 'Comedy') ORDER BY rating DESC;"""
+    query = """SELECT name, rating 
+                FROM MotionPicture 
+                WHERE rating > (SELECT AVG(M.rating) 
+                                FROM MotionPicture M, Genre G 
+                                WHERE G.genre_name = 'Comedy' AND M.id = G.mpid) 
+                ORDER BY rating DESC;"""
 
     with Database() as db:
         results = db.execute(query)
@@ -315,9 +336,13 @@ def actors_with_common_birthday():
     # >>>> TODO 15: Find actors who share the same birthday. <<<<
     #               List the actor names (actor 1, actor 2) and their common birthday.
 
-    query = """SELECT A1.name AS actor1_name, A2.name AS actor2_name, A1.dob
-                FROM People A1, People A2, Role R
-                WHERE A1.id in (SELECT pid FROM Role WHERE role_name = 'Actor') AND A2.id in (SELECT pid FROM Role WHERE role_name = 'Actor') AND A1.id < A2.id AND A1.dob = A2.dob;"""
+    query = """WITH Actors AS (
+                SELECT DISTINCT id, name, dob
+                FROM People P, Role R
+                WHERE P.id = R.pid AND R.role_name = 'Actor')
+                SELECT A1.name, A2.name, A1.dob
+                FROM Actors A1, Actors A2
+                WHERE A1.dob = A2.dob AND A1.id < A2.id;"""
 
     with Database() as db:
         results = db.execute(query)
